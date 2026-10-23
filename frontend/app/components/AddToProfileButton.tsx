@@ -2,11 +2,19 @@
 
 import { FormEvent, useId, useState } from "react";
 import Link from "next/link";
-import { addMyPlant, type AddPlantPayload } from "../lib/accounts";
-import { useAuth } from "../lib/auth-context";
-import { todayInputValue } from "../lib/format";
+import { addMyPlant, type AddPlantPayload } from "@/app/lib/accounts";
+import { useAuth } from "@/app/lib/auth-context";
+import { todayInputValue } from "@/app/lib/format";
 
-export default function AddToProfileButton({ plantId }: { plantId: number }) {
+type Props = {
+  plantId: number;
+  /** Рекомендуемый интервал полива для этого вида (середина диапазона) */
+  suggestedDays?: number;
+  /** true, если интервал вычислен по данным о виде, false, если это запасное значение */
+  fromSpecies?: boolean;
+};
+
+export default function AddToProfileButton({ plantId, suggestedDays = 7, fromSpecies = false }: Props) {
   const { status } = useAuth();
   const uid = useId();
 
@@ -134,12 +142,16 @@ export default function AddToProfileButton({ plantId }: { plantId: number }) {
                 inputMode="numeric"
                 value={interval}
                 onChange={(e) => setIntervalDays(e.target.value)}
-                placeholder="7"
+                placeholder={String(suggestedDays)}
               />
             </div>
           </div>
 
-          <p className="add-note">Если интервал не указан, по умолчанию будет 7 дней.</p>
+          <p className="add-note">
+            {fromSpecies
+              ? `Если не указать, будет ${suggestedDays} дн.: середина рекомендуемого диапазона для этого растения.`
+              : "Для этого растения нет данных о поливе, по умолчанию будет 7 дней."}
+          </p>
 
           {error && (
             <p className="add-error" role="alert">

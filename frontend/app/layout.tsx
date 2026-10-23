@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import "./globals.css";
+import "./footer-and-warning.css";
 import { AuthProvider } from "./lib/auth-context";
+import SiteFooter from "./components/SiteFooter";
 
 export const metadata: Metadata = {
   title: "FloraGuide",
@@ -15,7 +17,10 @@ export default function RootLayout({
   return (
     <html lang="ru">
       <body>
-        <AuthProvider>{children}</AuthProvider>
+        <AuthProvider>
+          {children}
+          <SiteFooter />
+        </AuthProvider>
       </body>
     </html>
   );
