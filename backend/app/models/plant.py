@@ -1,7 +1,9 @@
-from sqlalchemy import Column, Integer, String, Text, ForeignKey
+from sqlalchemy import Boolean, Column, ForeignKey, Integer, String, Text
+from sqlalchemy.dialects.postgresql import ARRAY
 from sqlalchemy.orm import relationship
 from pgvector.sqlalchemy import Vector
 from app.models.base import Base
+
 
 class PlantCategory(Base):
     __tablename__ = "plant_categories"
@@ -11,6 +13,7 @@ class PlantCategory(Base):
 
     species = relationship("PlantSpecies", back_populates="category")
     parts = relationship("PlantPart", back_populates="category")
+
 
 class PlantSpecies(Base):
     __tablename__ = "plant_species"
@@ -25,8 +28,21 @@ class PlantSpecies(Base):
     embedding = Column(Vector(384))
     category_id = Column(Integer, ForeignKey("plant_categories.id"), nullable=False)
 
+    # --- Данные из Perenual (все необязательные: у части растений они останутся пустыми) ---
+    external_id = Column(Integer, unique=True, index=True)  # id растения в Perenual
+    watering = Column(String)                # Frequent / Average / Minimum / None
+    watering_min_days = Column(Integer)      # интервал полива, нижняя граница
+    watering_max_days = Column(Integer)      # интервал полива, верхняя граница
+    sunlight = Column(ARRAY(String))         # например ["full sun", "part shade"]
+    indoor = Column(Boolean)
+    poisonous_to_pets = Column(Boolean)
+    care_level = Column(String)              # Low / Medium / High
+    image_url = Column(Text)
+    image_license = Column(Text)             # лицензия CC: её нужно показывать рядом с фото
+
     category = relationship("PlantCategory", back_populates="species")
     user_plants = relationship("UserPlant", back_populates="species")
+
 
 class PlantPart(Base):
     __tablename__ = "plant_parts"
@@ -37,6 +53,7 @@ class PlantPart(Base):
 
     category = relationship("PlantCategory", back_populates="parts")
     issues = relationship("VisualIssue", back_populates="part")
+
 
 class VisualIssue(Base):
     __tablename__ = "visual_issues"

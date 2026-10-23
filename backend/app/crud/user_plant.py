@@ -7,8 +7,22 @@ from app.models.plant import PlantSpecies
 from app.models.user import UserPlant
 from app.schemas.user_plant import UserPlantCreate
 
-# Временный интервал, пока расписание не считается экспертной системой
+# Запасной интервал для растений без данных о поливе
+# (позже расписание будет считать экспертная система)
 DEFAULT_WATERING_INTERVAL_DAYS = 7
+
+
+def suggested_interval(species: PlantSpecies | None) -> int:
+    """Интервал полива для растения: середина диапазона из данных Perenual.
+
+    (5, 7) -> 6;  (7, 10) -> 8;  задана одна граница -> она сама;  данных нет -> 7.
+    """
+    low = getattr(species, "watering_min_days", None)
+    high = getattr(species, "watering_max_days", None)
+    values = [v for v in (low, high) if v]
+    if not values:
+        return DEFAULT_WATERING_INTERVAL_DAYS
+    return max(1, min(365, sum(values) // len(values)))
 
 
 def _utc_now() -> datetime:
@@ -41,12 +55,14 @@ def get_user_plant(db: Session, user_id: int, user_plant_id: int) -> UserPlant |
 
 
 def create_user_plant(db: Session, user_id: int, data: UserPlantCreate) -> UserPlant:
+    species = db.get(PlantSpecies, data.plant_id)
     obj = UserPlant(
         user_id=user_id,
         plant_id=data.plant_id,
         custom_name=data.custom_name,
         planted_at=data.planted_at or date.today(),
-        watering_interval_days=data.watering_interval_days or DEFAULT_WATERING_INTERVAL_DAYS,
+        # Интервал, который указал пользователь, главнее данных о виде
+        watering_interval_days=data.watering_interval_days or suggested_interval(species),
     )
     db.add(obj)
     db.commit()
