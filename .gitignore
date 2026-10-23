@@ -1,0 +1,15 @@
+# Секреты
+.env
+.env.*
+!.env.example
+!.env.local.example
+
+# Редакторы и ОС
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# Локальные дампы и логи
+*.sql
+*.log
