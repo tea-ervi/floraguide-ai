@@ -1,0 +1,36 @@
+# Фразы для проверки понимания текста (команда: python scripts/evaluate_expert.py --phrases tests/phrases.yaml).
+# present: какие симптомы система должна найти, absent: какие отрицаемые («нет паутины»).
+# Первая часть фраз покрыта синонимами. Вторая часть (пометка «перефразировки») пока не покрыта:
+# пропуски там показывают, что добавить в symptoms.yaml. Добавляйте сюда реальные фразы пользователей.
+
+phrases:
+  - {text: "листья желтеют", present: [yellow_leaves]}
+  - {text: "пожелтели нижние листья", present: [yellow_lower_leaves]}
+  - {text: "цветок завял", present: [wilting]}
+  - {text: "кончики сохнут", present: [dry_brown_tips]}
+  - {text: "на листьях появились коричневые пятна", present: [brown_spots]}
+  - {text: "листья осыпаются", present: [leaf_drop]}
+  - {text: "стебель у основания гниёт", present: [soft_stem]}
+  - {text: "земля постоянно сырая", present: [wet_soil]}
+  - {text: "почва совсем сухая", present: [dry_soil]}
+  - {text: "растение вытянулось к окну", present: [leggy_growth]}
+  - {text: "листья побледнели", present: [pale_leaves]}
+  - {text: "цветок не растёт", present: [slow_growth]}
+  - {text: "на листьях паутина", present: [webbing]}
+  - {text: "летают мошки", present: [tiny_flies]}
+  - {text: "мелкие мушки над горшком", present: [tiny_flies]}
+  - {text: "листья липкие", present: [sticky_leaves]}
+  - {text: "листья скручиваются", present: [curling_leaves]}
+  - {text: "белый налёт на листьях", present: [white_coating]}
+  - {text: "стоит возле батареи", present: [near_heater]}
+  - {text: "на сквозняке", present: [near_draft]}
+  - {text: "нет паутины", absent: [webbing]}
+  - {text: "земля не сухая", absent: [dry_soil]}
+  - {text: "листья желтеют, но земля не сырая", present: [yellow_leaves], absent: [wet_soil]}
+  # перефразировки: так люди пишут по-своему
+  - {text: "листья блёкнут", present: [pale_leaves]}
+  - {text: "растение увядает", present: [wilting]}
+  - {text: "листья повисли", present: [wilting]}
+  - {text: "горшок не просыхает", present: [wet_soil]}
+  - {text: "кончики листьев почернели", present: [dry_brown_tips]}
+  - {text: "насекомые на стебле, похожие на вату", present: [cottony_clusters]}

@@ -1,0 +1,170 @@
+# Тестовые случаи для проверки экспертной системы.
+# plant: параметры растения (days_since_watering: дней с последнего полива, season: winter/spring/summer/autumn).
+# text: первое сообщение пользователя. answers: как пользователь отвечает на уточняющие вопросы.
+# expect: ожидаемая главная причина. expect_not: причина, которую система НЕ должна назвать.
+#
+# ВАЖНО: эти случаи написаны теми же людьми, что и правила. Они ловят поломки и несогласованность,
+# но не доказывают точность. Добавляйте случаи из реальных проблем растений и из источников.
+
+cases:
+  - id: overwater_yellow_wet
+    plant: {name: Монстера, min_days: 7, max_days: 10, days_since_watering: 3, season: summer, lux: 1500, humidity: 60}
+    text: "листья желтеют, земля мокрая"
+    expect: overwatering
+
+  - id: overwater_wilting_wet
+    plant: {name: Монстера, min_days: 7, max_days: 10, days_since_watering: 2, season: summer}
+    text: "растение поникло, земля сырая"
+    answers: {soft_stem: "no"}
+    expect: overwatering
+
+  - id: overwater_no_drainage
+    plant: {name: Фикус, min_days: 7, max_days: 10, days_since_watering: 4, season: autumn}
+    text: "желтеют листья"
+    answers: {wet_soil: "yes", no_drainage: "yes"}
+    expect: overwatering
+
+  - id: overwater_too_frequent
+    plant: {name: Фикус, interval: 4, min_days: 10, max_days: 14, days_since_watering: 2, season: summer}
+    text: "листья желтеют"
+    answers: {wet_soil: "yes"}
+    expect: overwatering
+
+  - id: overwater_succulent
+    plant: {name: Эхеверия, category: Суккуленты и кактусы, interval: 14, days_since_watering: 5, season: summer, lux: 5000, humidity: 30}
+    text: "желтеют листья"
+    answers: {dry_soil: "no", wet_soil: "yes"}
+    expect: overwatering
+
+  - id: root_rot_soft_wet
+    plant: {name: Замиокулькас, min_days: 14, max_days: 21, days_since_watering: 5, season: winter}
+    text: "стебель мягкий у основания, земля сырая"
+    expect: root_rot
+
+  - id: root_rot_soft_only
+    plant: {name: Замиокулькас, min_days: 14, max_days: 21, days_since_watering: 9, season: winter}
+    text: "основание стебля гниет"
+    answers: {wet_soil: "yes"}
+    expect: root_rot
+
+  - id: underwater_wilting_dry
+    plant: {name: Монстера, min_days: 7, max_days: 10, days_since_watering: 14, season: summer}
+    text: "растение поникло, земля сухая"
+    expect: underwatering
+
+  - id: underwater_curling_dry
+    plant: {name: Хлорофитум, min_days: 7, max_days: 10, days_since_watering: 16, season: summer}
+    text: "листья скручиваются, земля пересохла"
+    expect: underwatering
+
+  - id: underwater_overdue_wilting
+    plant: {name: Фикус, interval: 7, days_since_watering: 12, season: summer}
+    text: "растение вянет"
+    answers: {dry_soil: "yes"}
+    expect: underwatering
+
+  - id: underwater_leaf_drop_dry
+    plant: {name: Фикус, interval: 7, days_since_watering: 13, season: summer}
+    text: "листья опадают, земля как камень"
+    expect: underwatering
+
+  - id: low_light_leggy
+    plant: {name: Эпипремнум, min_days: 7, max_days: 10, days_since_watering: 3, season: summer}
+    text: "растение вытянулось"
+    expect: low_light
+
+  - id: low_light_winter_pale
+    plant: {name: Фикус, min_days: 7, max_days: 10, days_since_watering: 3, season: winter}
+    text: "вытягивается, листья бледные"
+    expect: low_light
+
+  - id: sunburn_south_window
+    plant: {name: Хавортия, category: Суккуленты и кактусы, interval: 14, days_since_watering: 6, season: summer, sunlight: [part shade]}
+    text: "светлые пятна на листьях, стоит на южном окне"
+    expect: sunburn
+
+  - id: sunburn_bleached
+    plant: {name: Спатифиллум, min_days: 5, max_days: 7, days_since_watering: 3, season: summer, sunlight: [part shade]}
+    text: "листья выгорели"
+    answers: {direct_sun: "yes"}
+    expect: sunburn
+
+  - id: humidity_heater
+    plant: {name: Папоротник, min_days: 3, max_days: 5, days_since_watering: 2, season: winter, humidity: 70}
+    text: "сохнут кончики листьев, рядом батарея"
+    expect: low_humidity
+
+  - id: humidity_tips_questions
+    plant: {name: Хамедорея, min_days: 7, max_days: 10, days_since_watering: 4, season: winter, humidity: 55}
+    text: "кончики листьев коричневые"
+    answers: {dry_soil: "no", wet_soil: "no", near_heater: "yes"}
+    expect: low_humidity
+
+  - id: spider_mites_web
+    plant: {name: Фикус, min_days: 7, max_days: 10, days_since_watering: 4, season: winter}
+    text: "на листьях паутинка"
+    expect: spider_mites
+
+  - id: spider_mites_dots
+    plant: {name: Эпипремнум, min_days: 7, max_days: 10, days_since_watering: 4, season: winter}
+    text: "мелкие светлые точки на листьях, листья желтеют"
+    answers: {near_heater: "yes"}
+    expect: spider_mites
+
+  - id: mealybugs
+    plant: {name: Кактус, category: Суккуленты и кактусы, interval: 14, days_since_watering: 6, season: summer}
+    text: "белые комочки как вата на стебле"
+    expect: mealybugs
+
+  - id: scale_insects
+    plant: {name: Фикус, min_days: 7, max_days: 10, days_since_watering: 4, season: summer}
+    text: "коричневые бугорки на стеблях, листья липкие"
+    expect: scale_insects
+
+  - id: aphids
+    plant: {name: Гибискус, min_days: 5, max_days: 7, days_since_watering: 3, season: summer}
+    text: "листья липкие и скручиваются"
+    answers: {cottony_clusters: "no", brown_bumps: "no"}
+    expect: aphids
+
+  - id: fungus_gnats
+    plant: {name: Монстера, min_days: 7, max_days: 10, days_since_watering: 2, season: summer}
+    text: "летают мелкие мошки над землей"
+    expect: fungus_gnats
+
+  - id: fungal_white
+    plant: {name: Фиалка, min_days: 5, max_days: 7, days_since_watering: 3, season: autumn}
+    text: "белый налет на листьях"
+    expect: fungal_disease
+
+  - id: fungal_spots
+    plant: {name: Фикус, min_days: 7, max_days: 10, days_since_watering: 4, season: autumn}
+    text: "пятна на листьях"
+    answers: {wet_soil: "no", direct_sun: "no", dry_soil: "no"}
+    expect: fungal_disease
+
+  - id: cold_draft
+    plant: {name: Фикус, min_days: 7, max_days: 10, days_since_watering: 4, season: winter}
+    text: "опадают листья, стоит на сквозняке"
+    expect: cold_stress
+
+  - id: transplant_drop
+    plant: {name: Фикус, min_days: 7, max_days: 10, days_since_watering: 4, season: spring}
+    text: "листья опадают, недавно переставила"
+    expect: transplant_stress
+
+  - id: natural_aging
+    plant: {name: Монстера, min_days: 7, max_days: 10, days_since_watering: 6, season: summer}
+    text: "желтеют нижние листья"
+    answers: {wet_soil: "no", dry_soil: "no"}
+    expect: natural_aging
+
+  - id: nutrient_summer
+    plant: {name: Хлорофитум, min_days: 7, max_days: 10, days_since_watering: 4, season: summer}
+    text: "бледные листья, почти не растет"
+    expect: nutrient_deficiency
+
+  - id: winter_slow_not_nutrient
+    plant: {name: Фикус, min_days: 7, max_days: 10, days_since_watering: 4, season: winter}
+    text: "растение не растет"
+    expect_not: nutrient_deficiency

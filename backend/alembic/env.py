@@ -47,6 +47,7 @@ from app.models.base import Base  # Импортируем общий Base кл�
 # Импортируем сами модели, чтобы они зарегистрировались в метаданных:
 from app.models.plant import PlantCategory, PlantPart, PlantSpecies, VisualIssue
 from app.models.user import User, UserPlant
+from app.models.chat import ChatSession, ChatMessage
 
 target_metadata = Base.metadata
 

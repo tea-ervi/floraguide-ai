@@ -1,0 +1,410 @@
+# Продукционные правила: ЕСЛИ все условия выполнены, ТО причина получает коэффициент уверенности cf.
+#
+# Условия (all):
+#   symptom_id        признак есть (пользователь подтвердил)
+#   !symptom_id       пользователь явно ответил «нет»
+#   ctx:fact          факт о растении истинен (см. FACT_NAMES в context.py)
+#   !ctx:fact         факт о растении ложен
+# cf от 0 до 1 усиливает причину, от -1 до 0 ослабляет (свидетельство против).
+# В объяснении доступны подстановки: {plant}, {days_since}, {interval}, {recommended}, {season}.
+#
+# Коэффициенты назначены экспертно и подбираются тестами (scripts/evaluate_expert.py),
+# это не статистические вероятности.
+
+rules:
+  # ---------------- Переувлажнение ----------------
+  - id: ow_yellow_wet
+    cause: overwatering
+    all: [yellow_leaves, wet_soil]
+    cf: 0.65
+    explain: "Листья желтеют, а земля остаётся сырой: корни получают слишком много воды."
+  - id: ow_yellow_freq
+    cause: overwatering
+    all: [yellow_leaves, "ctx:interval_below_recommended"]
+    cf: 0.4
+    explain: "Вы поливаете чаще, чем рекомендуют для этого вида (у вас {interval} дн., рекомендуется {recommended})."
+  - id: ow_yellow_recent
+    cause: overwatering
+    all: [yellow_leaves, "ctx:recently_watered", "!dry_soil"]
+    cf: 0.3
+    explain: "Полив был недавно ({days_since} дн. назад при интервале {interval} дн.), а земля не сухая."
+  - id: ow_yellow_succulent
+    cause: overwatering
+    all: [yellow_leaves, "ctx:is_succulent", "!dry_soil"]
+    cf: 0.3
+    explain: "У суккулентов жёлтые мягкие листья чаще всего означают лишнюю воду."
+  - id: ow_wilting_wet
+    cause: overwatering
+    all: [wilting, wet_soil]
+    cf: 0.7
+    explain: "Растение поникло при сырой земле: так выглядит перелив (корни не получают воздуха), а не нехватка воды."
+  - id: ow_drop_wet
+    cause: overwatering
+    all: [leaf_drop, wet_soil]
+    cf: 0.5
+    explain: "Листья опадают, а земля сырая: растение сбрасывает листья из-за избытка воды."
+  - id: ow_tips_wet
+    cause: overwatering
+    all: [dry_brown_tips, wet_soil]
+    cf: 0.4
+    explain: "Кончики листьев сохнут при постоянно сырой земле: корни страдают от лишней влаги."
+  - id: ow_spots_wet
+    cause: overwatering
+    all: [brown_spots, wet_soil]
+    cf: 0.35
+    explain: "Тёмные пятна при сырой земле часто связаны с переувлажнением."
+  - id: ow_flies_wet
+    cause: overwatering
+    all: [tiny_flies, wet_soil]
+    cf: 0.3
+    explain: "Мошки вместе с сырой землёй указывают на постоянное переувлажнение."
+  - id: ow_no_drain
+    cause: overwatering
+    all: [wet_soil, no_drainage]
+    cf: 0.3
+    explain: "В горшке нет дренажных отверстий, поэтому вода застаивается."
+  - id: ow_winter_wet
+    cause: overwatering
+    all: [wet_soil, "ctx:winter"]
+    cf: 0.2
+    explain: "Зимой растения расходуют меньше воды, поэтому земля дольше остаётся влажной."
+  - id: ow_against_dry
+    cause: overwatering
+    all: [dry_soil]
+    cf: -0.6
+    explain: "Земля сухая: версия о переливе маловероятна."
+
+  # ---------------- Гниль корней ----------------
+  - id: rr_soft_wet
+    cause: root_rot
+    all: [soft_stem, wet_soil]
+    cf: 0.85
+    explain: "Мягкое основание стебля и сырая земля: типичные признаки гнили корней."
+  - id: rr_soft
+    cause: root_rot
+    all: [soft_stem]
+    cf: 0.55
+    explain: "Размягчение и потемнение основания стебля часто означает гниль, идущую от корней."
+  - id: rr_wilt_yellow_wet
+    cause: root_rot
+    all: [wilting, yellow_leaves, wet_soil]
+    cf: 0.4
+    explain: "Растение вянет, листья желтеют, а земля сырая: корни могли начать гнить и не снабжают растение водой."
+  - id: rr_against_dry
+    cause: root_rot
+    all: [dry_soil]
+    cf: -0.4
+    explain: "Земля сухая: гниль корней менее вероятна."
+
+  # ---------------- Недостаток воды ----------------
+  - id: uw_wilt_dry
+    cause: underwatering
+    all: [wilting, dry_soil]
+    cf: 0.8
+    explain: "Растение поникло, а земля сухая: ему не хватает воды."
+  - id: uw_wilt_overdue
+    cause: underwatering
+    all: [wilting, "ctx:watering_overdue"]
+    cf: 0.55
+    explain: "Полив просрочен: последний был {days_since} дн. назад при интервале {interval} дн."
+  - id: uw_tips_dry
+    cause: underwatering
+    all: [dry_brown_tips, dry_soil]
+    cf: 0.5
+    explain: "Кончики листьев сохнут при сухой земле."
+  - id: uw_tips_overdue
+    cause: underwatering
+    all: [dry_brown_tips, "ctx:watering_overdue"]
+    cf: 0.35
+    explain: "Полив просрочен: прошло {days_since} дн. при интервале {interval} дн."
+  - id: uw_curl_dry
+    cause: underwatering
+    all: [curling_leaves, dry_soil]
+    cf: 0.5
+    explain: "Листья скручиваются, чтобы испарять меньше влаги, а земля при этом сухая."
+  - id: uw_yellow_dry
+    cause: underwatering
+    all: [yellow_leaves, dry_soil]
+    cf: 0.5
+    explain: "Листья желтеют при сухой земле: у пересохшего растения нижние листья желтеют и опадают первыми."
+  - id: uw_yellow_overdue
+    cause: underwatering
+    all: [yellow_leaves, "ctx:watering_overdue", "!wet_soil"]
+    cf: 0.35
+    explain: "Полив просрочен ({days_since} дн. при интервале {interval} дн.), а земля не сырая."
+  - id: uw_drop_dry
+    cause: underwatering
+    all: [leaf_drop, dry_soil]
+    cf: 0.5
+    explain: "Листья опадают при сухой земле: растение сбрасывает их из-за нехватки воды."
+  - id: uw_against_recent
+    cause: underwatering
+    all: [wilting, "ctx:recently_watered"]
+    cf: -0.35
+    explain: "Полив был недавно ({days_since} дн. назад), поэтому нехватка воды менее вероятна."
+  - id: uw_against_wet
+    cause: underwatering
+    all: [wet_soil]
+    cf: -0.7
+    explain: "Земля сырая: нехватка воды маловероятна."
+
+  # ---------------- Недостаток света ----------------
+  - id: ll_leggy
+    cause: low_light
+    all: [leggy_growth]
+    cf: 0.6
+    explain: "Растение вытягивается к источнику света: ему не хватает освещения."
+  - id: ll_leggy_bright
+    cause: low_light
+    all: [leggy_growth, "ctx:species_bright_light"]
+    cf: 0.25
+    explain: "Этому виду нужен яркий свет."
+  - id: ll_pale_winter
+    cause: low_light
+    all: [pale_leaves, "ctx:winter"]
+    cf: 0.3
+    explain: "Зимой света мало, листья бледнеют."
+
+  # ---------------- Солнечный ожог ----------------
+  - id: sb_bleached_sun
+    cause: sunburn
+    all: [bleached_patches, direct_sun]
+    cf: 0.85
+    explain: "Светлые выжженные участки на листьях и прямое солнце: это солнечный ожог."
+  - id: sb_bleached
+    cause: sunburn
+    all: [bleached_patches]
+    cf: 0.55
+    explain: "Выцветшие или выжженные участки на листьях часто бывают от ожога."
+  - id: sb_spots_sun
+    cause: sunburn
+    all: [brown_spots, direct_sun]
+    cf: 0.45
+    explain: "Коричневые пятна у растения, стоящего на прямом солнце, могут быть ожогами."
+  - id: sb_wilting_sun
+    cause: sunburn
+    all: [wilting, direct_sun]
+    cf: 0.4
+    explain: "Полуденное солнце может вызывать поникание листьев."
+  - id: sb_yellow_sun
+    cause: sunburn
+    all: [yellow_leaves, direct_sun]
+    cf: 0.35
+    explain: "Слишком яркое солнце может выжигать листья до жёлтого цвета."
+  - id: sb_tips_sun
+    cause: sunburn
+    all: [dry_brown_tips, direct_sun]
+    cf: 0.25
+    explain: "Кончики листьев могут буреть от слишком яркого солнца через стекло."
+  - id: sb_shade_species
+    cause: sunburn
+    all: [bleached_patches, "ctx:species_low_light"]
+    cf: 0.2
+    explain: "Этот вид предпочитает тень, прямое солнце ему вредно."
+
+  # ---------------- Сухой воздух ----------------
+  - id: lh_tips_heater
+    cause: low_humidity
+    all: [dry_brown_tips, near_heater]
+    cf: 0.6
+    explain: "Кончики листьев сохнут, а растение стоит рядом с источником тепла и сухого воздуха."
+  - id: lh_tips_season
+    cause: low_humidity
+    all: [dry_brown_tips, "ctx:heating_season"]
+    cf: 0.3
+    explain: "Сейчас отопительный сезон, воздух в помещении суше обычного."
+  - id: lh_tips_species
+    cause: low_humidity
+    all: [dry_brown_tips, "ctx:species_humid"]
+    cf: 0.3
+    explain: "Этот вид любит влажный воздух."
+  - id: lh_tips
+    cause: low_humidity
+    all: [dry_brown_tips]
+    cf: 0.3
+    explain: "Коричневые кончики листьев это классический признак сухого воздуха."
+  - id: lh_curl_heater
+    cause: low_humidity
+    all: [curling_leaves, near_heater]
+    cf: 0.4
+    explain: "Листья скручиваются рядом с батареей: воздух слишком сухой."
+  - id: lh_drop_heater
+    cause: low_humidity
+    all: [leaf_drop, near_heater]
+    cf: 0.3
+    explain: "Сухой воздух рядом с батареей может вызывать преждевременное опадение листьев."
+
+  # ---------------- Паутинный клещ ----------------
+  - id: sm_web
+    cause: spider_mites
+    all: [webbing]
+    cf: 0.85
+    explain: "Паутинка на листьях: характерный признак паутинного клеща."
+  - id: sm_dots
+    cause: spider_mites
+    all: [tiny_dots]
+    cf: 0.55
+    explain: "Мелкие светлые точки на листьях остаются после уколов клеща."
+  - id: sm_dots_dry
+    cause: spider_mites
+    all: [tiny_dots, near_heater]
+    cf: 0.25
+    explain: "Клещи любят сухой тёплый воздух рядом с батареей."
+  - id: sm_yellow_dots
+    cause: spider_mites
+    all: [yellow_leaves, tiny_dots]
+    cf: 0.3
+    explain: "Листья желтеют и покрыты мелкими точками: так выглядит поражение клещом."
+
+  # ---------------- Мучнистый червец ----------------
+  - id: mb_cotton
+    cause: mealybugs
+    all: [cottony_clusters]
+    cf: 0.9
+    explain: "Белые ватные комочки на растении: это мучнистый червец."
+  - id: mb_sticky
+    cause: mealybugs
+    all: [sticky_leaves]
+    cf: 0.25
+    explain: "Липкий налёт оставляют многие сосущие вредители, в том числе червецы."
+  - id: mb_sticky_cotton
+    cause: mealybugs
+    all: [sticky_leaves, cottony_clusters]
+    cf: 0.3
+    explain: "Липкие листья вместе с ватными комочками подтверждают червеца."
+
+  # ---------------- Щитовка ----------------
+  - id: sc_bumps
+    cause: scale_insects
+    all: [brown_bumps]
+    cf: 0.85
+    explain: "Коричневые бугорки, которые отделяются ногтем, это щитки щитовки."
+  - id: sc_sticky
+    cause: scale_insects
+    all: [sticky_leaves]
+    cf: 0.3
+    explain: "Щитовка выделяет липкую жидкость."
+  - id: sc_sticky_bumps
+    cause: scale_insects
+    all: [sticky_leaves, brown_bumps]
+    cf: 0.3
+    explain: "Липкость вместе с бугорками подтверждает щитовку."
+
+  # ---------------- Тля ----------------
+  - id: ap_sticky_curl
+    cause: aphids
+    all: [sticky_leaves, curling_leaves]
+    cf: 0.55
+    explain: "Липкие скрученные листья часто бывают при поражении тлёй."
+  - id: ap_sticky
+    cause: aphids
+    all: [sticky_leaves]
+    cf: 0.25
+    explain: "Тля оставляет липкие выделения на листьях."
+
+  # ---------------- Грибные комарики ----------------
+  - id: fg_flies
+    cause: fungus_gnats
+    all: [tiny_flies]
+    cf: 0.8
+    explain: "Мелкие мошки над землёй это обычно грибные комарики."
+  - id: fg_flies_wet
+    cause: fungus_gnats
+    all: [tiny_flies, wet_soil]
+    cf: 0.2
+    explain: "Личинкам благоприятна постоянно сырая земля."
+
+  # ---------------- Грибковые болезни ----------------
+  - id: fd_white
+    cause: fungal_disease
+    all: [white_coating]
+    cf: 0.8
+    explain: "Белый, серый или пушистый налёт указывает на грибок (мучнистая роса, плесень)."
+  - id: fd_spots
+    cause: fungal_disease
+    all: [brown_spots]
+    cf: 0.35
+    explain: "Тёмные пятна на листьях могут быть грибковой пятнистостью."
+  - id: fd_spots_wet
+    cause: fungal_disease
+    all: [brown_spots, wet_soil]
+    cf: 0.2
+    explain: "Сырость благоприятна для развития грибков."
+
+  # ---------------- Холодовой стресс ----------------
+  - id: cs_drop_draft
+    cause: cold_stress
+    all: [leaf_drop, near_draft]
+    cf: 0.65
+    explain: "Листья опадают, а растение стоит на сквозняке или у холодного стекла."
+  - id: cs_drop_winter
+    cause: cold_stress
+    all: [leaf_drop, "ctx:winter"]
+    cf: 0.25
+    explain: "Зимой растения чувствительнее к холоду и перепадам температуры."
+  - id: cs_wilt_draft
+    cause: cold_stress
+    all: [wilting, near_draft]
+    cf: 0.4
+    explain: "Растение поникло на сквозняке: возможен холодовой стресс."
+  - id: cs_yellow_draft
+    cause: cold_stress
+    all: [yellow_leaves, near_draft]
+    cf: 0.3
+    explain: "Низкая температура может вызывать пожелтение листьев."
+
+  # ---------------- Стресс после пересадки ----------------
+  - id: ts_drop_moved
+    cause: transplant_stress
+    all: [leaf_drop, recently_moved]
+    cf: 0.65
+    explain: "Листья опадают после покупки, пересадки или смены места: растение привыкает."
+  - id: ts_wilt_moved
+    cause: transplant_stress
+    all: [wilting, recently_moved]
+    cf: 0.5
+    explain: "Растение поникло после пересадки или смены места."
+  - id: ts_yellow_moved
+    cause: transplant_stress
+    all: [yellow_leaves, recently_moved]
+    cf: 0.4
+    explain: "Листья желтеют после смены условий."
+
+  # ---------------- Естественное старение ----------------
+  - id: na_lower_clear
+    cause: natural_aging
+    all: [yellow_lower_leaves, "ctx:watering_on_time", "!wet_soil", "!dry_soil"]
+    cf: 0.6
+    explain: "Желтеют нижние листья при регулярном поливе и нормальной влажности земли: это обычное старение."
+  - id: na_lower
+    cause: natural_aging
+    all: [yellow_lower_leaves, "ctx:watering_on_time"]
+    cf: 0.25
+    explain: "Полив идёт по графику: это поддерживает версию о естественном старении нижних листьев."
+
+  # ---------------- Недостаток питания ----------------
+  - id: nd_pale_slow
+    cause: nutrient_deficiency
+    all: [pale_leaves, slow_growth, "ctx:growing_season"]
+    cf: 0.55
+    explain: "Листья бледнеют и рост замедлился в период активного роста: растению не хватает питания."
+  - id: nd_pale
+    cause: nutrient_deficiency
+    all: [pale_leaves, "ctx:growing_season"]
+    cf: 0.3
+    explain: "Бледные листья в сезон роста могут говорить о нехватке питательных веществ."
+  - id: nd_yellow_slow
+    cause: nutrient_deficiency
+    all: [yellow_leaves, slow_growth, "ctx:growing_season"]
+    cf: 0.35
+    explain: "Желтеющие листья и слабый рост в сезон роста: возможна нехватка питания."
+  - id: nd_slow
+    cause: nutrient_deficiency
+    all: [slow_growth, "ctx:growing_season"]
+    cf: 0.25
+    explain: "Слабый рост в сезон активного роста."
+  - id: nd_against_winter
+    cause: nutrient_deficiency
+    all: [slow_growth, "ctx:winter"]
+    cf: -0.5
+    explain: "Зимой замедление роста это норма, подкормка не нужна."
