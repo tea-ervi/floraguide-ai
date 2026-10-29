@@ -250,6 +250,9 @@ export default function ProfilePage() {
                         >
                           Удалить
                         </button>
+                        <Link href={`/chat/${plant.id}`} className="pf-chat-link">
+                          Спросить
+                        </Link>
                       </div>
                     </li>
                   );

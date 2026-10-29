@@ -1331,3 +1331,366 @@ button.home-btn-ghost:focus-visible {
     flex-wrap: wrap;
   }
 }
+
+
+
+
+
+
+/* Страница чата растения (/chat/[id]). Вставьте в конец app/globals.css, после profile.css.
+   Цвета берутся из переменных .pf-page (оранжевая тема профиля). */
+
+.chat-main {
+  max-width: 880px;
+  margin: 0 auto;
+  padding: 16px 24px 24px;
+}
+
+.chat-back {
+  display: inline-block;
+  margin-bottom: 12px;
+  color: var(--moss);
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.chat-back:hover {
+  text-decoration: underline;
+}
+
+.chat-title-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+.chat-title {
+  margin: 0;
+  color: var(--forest);
+  font-size: clamp(1.5rem, 3vw, 2rem);
+  line-height: 1.15;
+  letter-spacing: -0.01em;
+}
+
+/* Лента сообщений */
+.chat-log {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  min-height: 240px;
+  padding-bottom: 8px;
+}
+
+.chat-row {
+  display: flex;
+}
+
+.chat-row-user {
+  justify-content: flex-end;
+}
+
+.chat-bubble {
+  max-width: 85%;
+  padding: 14px 18px;
+  border-radius: 20px;
+}
+
+.chat-bubble-wide {
+  width: 100%;
+  max-width: 100%;
+}
+
+.chat-bubble-bot {
+  background: #fff;
+  border: 1.5px solid var(--sage);
+  border-bottom-left-radius: 6px;
+  color: var(--ink);
+}
+
+.chat-bubble-user {
+  background: var(--moss);
+  border-bottom-right-radius: 6px;
+  color: #fff;
+}
+
+.chat-text {
+  margin: 0;
+  line-height: 1.5;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.chat-time {
+  display: block;
+  margin-top: 6px;
+  font-size: 0.75rem;
+  opacity: 0.65;
+  text-align: right;
+}
+
+.chat-typing {
+  color: #9a4a22;
+  font-style: italic;
+}
+
+/* Кнопки-подсказки и варианты ответа */
+.chat-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.chat-chip {
+  padding: 8px 16px;
+  background: var(--paper);
+  border: 1.5px solid var(--sage);
+  border-radius: 999px;
+  font: inherit;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--forest);
+  cursor: pointer;
+  transition: background-color 0.15s, border-color 0.15s;
+}
+
+.chat-chip:hover:not(:disabled) {
+  background: var(--sage);
+  border-color: var(--forest);
+}
+
+.chat-chip-answer {
+  background: var(--forest);
+  border-color: var(--forest);
+  color: var(--paper);
+  padding: 10px 24px;
+}
+
+.chat-chip-answer:hover:not(:disabled) {
+  background: var(--moss);
+  border-color: var(--moss);
+}
+
+.chat-chip:disabled {
+  opacity: 0.55;
+  cursor: wait;
+}
+
+/* Форма отправки */
+.chat-form {
+  position: sticky;
+  bottom: 0;
+  display: flex;
+  gap: 10px;
+  margin-top: 12px;
+  padding: 14px 0;
+  background: var(--paper);
+}
+
+.chat-input {
+  flex: 1;
+  min-width: 0;
+  padding: 12px 18px;
+  background: #fff;
+  border: 2px solid var(--forest);
+  border-radius: 999px;
+  font: inherit;
+  color: var(--ink);
+}
+
+.chat-input:focus {
+  outline: none;
+  border-color: var(--moss);
+  box-shadow: 0 0 0 3px rgba(251, 146, 60, 0.35);
+}
+
+.chat-send {
+  padding: 12px 26px;
+  background: var(--forest);
+  border: none;
+  border-radius: 999px;
+  font: inherit;
+  font-weight: 600;
+  color: var(--paper);
+  cursor: pointer;
+  transition: background-color 0.15s;
+}
+
+.chat-send:hover:not(:disabled) {
+  background: var(--moss);
+}
+
+.chat-send:disabled,
+.chat-input:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.chat-back:focus-visible,
+.chat-chip:focus-visible,
+.chat-send:focus-visible,
+.pf-chat-link:focus-visible {
+  outline: 3px solid var(--leaf);
+  outline-offset: 3px;
+}
+
+/* Карточка диагноза */
+.chat-diag {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.chat-diag-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.chat-diag-title {
+  margin: 0;
+  flex: 1;
+  min-width: 220px;
+  color: var(--forest);
+  font-size: 1.25rem;
+  line-height: 1.25;
+}
+
+.chat-badge {
+  padding: 4px 12px;
+  border-radius: 999px;
+  font-size: 0.82rem;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.chat-badge-high {
+  background: #fee2e2;
+  color: #991b1b;
+}
+
+.chat-badge-medium {
+  background: #fef3c7;
+  color: #92400e;
+}
+
+.chat-badge-low {
+  background: #ffedd5;
+  color: #9a3412;
+}
+
+.chat-conf {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.chat-conf-track {
+  flex: 1;
+  height: 12px;
+  background: var(--sage);
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.chat-conf-fill {
+  height: 100%;
+  background: var(--moss);
+  border-radius: 999px;
+}
+
+.chat-conf-value {
+  min-width: 3ch;
+  font-weight: 700;
+  color: var(--forest);
+}
+
+.chat-note {
+  margin: 0;
+  padding: 8px 12px;
+  background: #fef3c7;
+  border-radius: 10px;
+  color: #78350f;
+  font-size: 0.92rem;
+}
+
+.chat-diag-summary {
+  margin: 0;
+  line-height: 1.5;
+}
+
+.chat-diag-sub {
+  margin: 4px 0 6px;
+  font-size: 0.8rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--moss);
+}
+
+.chat-list {
+  margin: 0;
+  padding-left: 22px;
+  line-height: 1.5;
+}
+
+.chat-list li + li {
+  margin-top: 4px;
+}
+
+.chat-steps li::marker {
+  font-weight: 700;
+  color: var(--moss);
+}
+
+.chat-alt,
+.chat-sources,
+.chat-disclaimer {
+  margin: 0;
+  font-size: 0.9rem;
+  line-height: 1.45;
+  color: #7a3b1d;
+}
+
+.chat-sources a {
+  color: var(--forest);
+}
+
+.chat-disclaimer {
+  font-style: italic;
+}
+
+/* Ссылка «Спросить» на карточке растения в профиле */
+.pf-chat-link {
+  display: inline-block;
+  padding: 10px 20px;
+  background: var(--forest);
+  border-radius: 999px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--paper);
+  text-decoration: none;
+  transition: background-color 0.15s;
+}
+
+.pf-chat-link:hover {
+  background: var(--moss);
+}
+
+@media (max-width: 560px) {
+  .chat-main {
+    padding: 12px 14px 16px;
+  }
+
+  .chat-bubble {
+    max-width: 95%;
+    padding: 12px 14px;
+  }
+
+  .chat-title-row {
+    flex-wrap: wrap;
+  }
+}
