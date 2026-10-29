@@ -20,3 +20,12 @@ __pycache__/
 scripts/cache/
 /monstera.json
 /search.json
+
+# Выгрузки диалогов (там тексты пользователей) и дампы
+tests/unrecognized.yaml
+*.dump
+
+# Тесты и отчёты
+.pytest_cache/
+.coverage
+htmlcov/
