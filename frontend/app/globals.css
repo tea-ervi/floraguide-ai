@@ -286,6 +286,7 @@
 }
 
 .auth-input {
+  box-sizing: border-box;
   width: 100%;
   padding: 12px 16px;
   background: var(--paper);
@@ -1239,6 +1240,7 @@ button.home-btn-ghost:focus-visible {
 }
 
 .add-field input {
+  box-sizing: border-box;
   width: 100%;
   padding: 10px 14px;
   background: var(--paper);

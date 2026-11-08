@@ -22,12 +22,22 @@ class PlantListItem(BaseModel):
 
 
 class PlantDetail(PlantListItem):
-    """Полная карточка растения. Поле embedding намеренно не включено."""
+    """Полная карточка растения со всеми параметрами ухода и условиями."""
 
     optimal_lux: int | None = None
     optimal_humidity: int | None = None
     soil_composition: str | None = None
     growth_duration_days: int | None = None
+    external_id: int | None = None
+    watering: str | None = None
+    watering_min_days: int | None = None
+    watering_max_days: int | None = None
+    sunlight: list[str] | None = None
+    indoor: bool | None = None
+    poisonous_to_pets: bool | None = None
+    care_level: str | None = None
+    image_url: str | None = None
+    image_license: str | None = None
 
 
 class PlantListResponse(BaseModel):

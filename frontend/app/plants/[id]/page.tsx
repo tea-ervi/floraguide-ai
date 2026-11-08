@@ -157,7 +157,8 @@ export default async function PlantPage({ params }: Props) {
               <span aria-current="page">{plant.name}</span>
             </nav>
 
-            <div className={plant.image_url ? "cat-plant-layout" : undefined}>
+            {/* <div className={plant.image_url ? "cat-plant-layout" : undefined}> */}
+            <div>
               <div>
                 <header className="cat-plant-head">
                   <span className="cat-tag">{plant.category.name}</span>
@@ -172,17 +173,17 @@ export default async function PlantPage({ params }: Props) {
                 )}
               </div>
 
-              {plant.image_url && (
-                <figure className="cat-plant-photo">
+              {/* {plant.image_url && ( */}
+                {/* <figure className="cat-plant-photo"> */}
                   {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src={plant.image_url} alt={plant.name} referrerPolicy="no-referrer" />
-                  {plant.image_license && (
-                    <figcaption className="cat-photo-credit">
-                      Фото: Perenual, <LicenseText value={plant.image_license} />
-                    </figcaption>
-                  )}
-                </figure>
-              )}
+                  {/* <img src={plant.image_url} alt={plant.name} referrerPolicy="no-referrer" /> */}
+                  {/* {plant.image_license && ( */}
+                    {/* <figcaption className="cat-photo-credit"> */}
+                      {/* Фото: Perenual, <LicenseText value={plant.image_license} /> */}
+                    {/* </figcaption> */}
+                  {/* )} */}
+                {/* </figure> */}
+              {/* )} */}
             </div>
 
             {plant.poisonous_to_pets === true && (

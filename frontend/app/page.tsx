@@ -3,6 +3,7 @@
 import { FormEvent, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import AuthNav from "@/app/components/AuthNav";
 
 const QUICK_SEARCHES = ["Монстера", "Суккуленты", "Желтеют листья", "Мало света"];
 
@@ -37,14 +38,13 @@ export default function HomePage() {
           FloraGuide
         </Link>
 
-        <nav className="home-auth" aria-label="Аккаунт">
-          <Link href="/login" className="home-btn-ghost">
-            Войти
+        {/* Навигационный блок справа: ссылка на курсы + AuthNav */}
+        <div style={{ display: "flex", alignItems: "center", gap: "32px" }}>
+          <Link href="/courses" className="home-btn-ghost" style={{ textDecoration: "none" }}>
+            📚 Курсы
           </Link>
-          <Link href="/register" className="home-btn-solid">
-            Регистрация
-          </Link>
-        </nav>
+          <AuthNav className="home-auth" />
+        </div>
       </header>
 
       <main className="home-hero">
