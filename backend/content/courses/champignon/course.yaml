@@ -1,0 +1,17 @@
+slug: champignon
+title: "Шампиньоны: от компоста до урожая"
+topic: mushrooms
+level: "Для начинающих"
+duration_minutes: 20
+description: "Как устроено выращивание шампиньонов и почему при ошибках с теплом, водой и воздухом гриб ведёт себя именно так. Конспект и тест на понимание причин и следствий."
+sources:
+  - title: "The Canadian Encyclopedia: Mushroom Cultivation (на английском)"
+    url: "https://thecanadianencyclopedia.ca/en/article/mushroom-cultivation"
+  - title: "Atlantic Provinces: Small Scale Mushroom Production, Agaricus bisporus (на английском)"
+    url: "https://www.gov.nl.ca/ffa/files/agrifoods-plants-pdf-mushroom.pdf"
+  - title: "Pacific Northwest Plant Disease Management Handbook: Bacterial blotch (на английском)"
+    url: "https://pnwhandbooks.org/node/3091"
+  - title: "AHDB: Pathogens causing blotch and green mould in mushroom cultivation (на английском)"
+    url: "https://archive.ahdb.org.uk/detection-and-control-of-pathogens-causing-blotch-and-green-mould-in-mushroom-cultivation"
+  - title: "Agaricus.ru: Bacterial blotch (на английском)"
+    url: "https://en.agaricus.ru/cultivation/diseases/bacteriosis"

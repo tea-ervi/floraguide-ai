@@ -17,18 +17,22 @@ const WATERING_LABELS: Record<string, string> = {
   none: "Почти не требуется",
 };
 
+// Значения света из Perenual (в базе они приведены к нижнему регистру, «_» заменён пробелом)
 const SUNLIGHT_LABELS: Record<string, string> = {
   "full sun": "прямое солнце",
+  "part sun": "солнце и полутень",
   "part shade": "полутень",
   "part sun/part shade": "солнце и полутень",
   "sun-part shade": "солнце и полутень",
   "filtered shade": "рассеянный свет",
   "full shade": "тень",
+  "deep shade": "глубокая тень",
 };
 
 const CARE_LABELS: Record<string, string> = {
   low: "Низкая сложность",
   medium: "Средняя сложность",
+  moderate: "Средняя сложность",
   high: "Высокая сложность",
 };
 
@@ -56,21 +60,23 @@ function formatDuration(days: number): string {
   return `около ${years} ${plural(years, "года", "лет", "лет")}`;
 }
 
+/** «каждые 5–7 дней», «каждый день», «каждые 14 дней» */
+function intervalText(min: number, max: number): string {
+  if (min === 1 && max === 1) return "каждый день";
+  if (min === max) return `каждые ${min} ${plural(min, "день", "дня", "дней")}`;
+  return `каждые ${min}–${max} ${plural(max, "день", "дня", "дней")}`;
+}
+
 function wateringText(plant: PlantDetail): string | null {
   const label = plant.watering ? (WATERING_LABELS[plant.watering.toLowerCase()] ?? plant.watering) : null;
   const min = plant.watering_min_days;
   const max = plant.watering_max_days ?? min;
-  let days: string | null = null;
-  if (min != null && max != null) {
-    days =
-      min === max
-        ? `каждые ${min} ${plural(min, "день", "дня", "дней")}`
-        : `каждые ${min}–${max} ${plural(max, "день", "дня", "дней")}`;
-  }
+  const days = min != null && max != null ? intervalText(Math.min(min, max), Math.max(min, max)) : null;
   if (label && days) return `${label} · ${days}`;
   return label ?? days;
 }
 
+/** Поля, которых нет в базе (у многих растений из Perenual нет влажности и срока роста), просто не показываются. */
 function buildFacts(plant: PlantDetail): Fact[] {
   const facts: Fact[] = [];
 
@@ -87,6 +93,7 @@ function buildFacts(plant: PlantDetail): Fact[] {
     facts.push({ label: "Срок роста", value: formatDuration(plant.growth_duration_days) });
   if (plant.care_level)
     facts.push({ label: "Сложность ухода", value: CARE_LABELS[plant.care_level.toLowerCase()] ?? plant.care_level });
+  if (plant.indoor === true) facts.push({ label: "Размещение", value: "Комнатное растение" });
   if (plant.poisonous_to_pets != null)
     facts.push({
       label: "Домашние животные",
@@ -103,7 +110,11 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   if (!plantId) return { title: "Растение не найдено — FloraGuide" };
   try {
     const plant = await getPlant(plantId);
-    return { title: plant ? `${plant.name} — FloraGuide` : "Растение не найдено — FloraGuide" };
+    if (!plant) return { title: "Растение не найдено — FloraGuide" };
+    return {
+      title: `${plant.name} — FloraGuide`,
+      description: plant.description ?? `${plant.name}: условия содержания и уход`,
+    };
   } catch {
     return { title: "FloraGuide" };
   }
@@ -154,13 +165,17 @@ export default async function PlantPage({ params }: Props) {
                   {plant.scientific_name && <p className="cat-plant-latin">{plant.scientific_name}</p>}
                 </header>
 
-                {plant.description && <p className="cat-plant-desc">{plant.description}</p>}
+                {plant.description ? (
+                  <p className="cat-plant-desc">{plant.description}</p>
+                ) : (
+                  <p className="cat-actions-note">Описание этого растения пока не добавлено.</p>
+                )}
               </div>
 
               {plant.image_url && (
                 <figure className="cat-plant-photo">
                   {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src={plant.image_url} alt={plant.name} />
+                  <img src={plant.image_url} alt={plant.name} referrerPolicy="no-referrer" />
                   {plant.image_license && (
                     <figcaption className="cat-photo-credit">
                       Фото: Perenual, <LicenseText value={plant.image_license} />
