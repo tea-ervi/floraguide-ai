@@ -5,7 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import AuthNav from "@/app/components/AuthNav";
 
-const QUICK_SEARCHES = ["Монстера", "Суккуленты", "Желтеют листья", "Мало света"];
+const QUICK_SEARCHES = ["Монстера", "Суккуленты"];
 
 export default function HomePage() {
   const router = useRouter();
